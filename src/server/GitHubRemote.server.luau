@@ -7,29 +7,37 @@ local function getInfo(url)
 
     if name and repo then
         local commitUrl = string.format("https://api.github.com/repos/%s/%s/commits/main", name, repo)
-        local commitResponse = http:GetAsync(commitUrl)
-        local commitData = http:JSONDecode(commitResponse)
         
-        if commitData then
-            local commitDate = commitData.commit.author.date
-            local commitIDSHA = commitData.sha
+        local success, commitResponse = pcall(function()
+            return http:GetAsync(commitUrl)
+        end)
+        
+        if success then
+            local commitData = http:JSONDecode(commitResponse)
             
-            local commitID = commitIDSHA:sub(1, 7)
-            
-            local year, month, day = commitDate:match("(%d+)-(%d+)-(%d+)T")
-            if year and month and day then
-                local formattedDate = month..day..year
-                return formattedDate, commitID
+            if commitData then
+                local commitDate = commitData.commit.author.date
+                local commitIDSHA = commitData.sha
+                
+                local commitID = commitIDSHA:sub(1, 7)
+                
+                local year, month, day = commitDate:match("(%d+)-(%d+)-(%d+)T")
+                if year and month and day then
+                    local formattedDate = month..day..year
+                    return formattedDate, commitID
+                else
+                    warn("failed to extract date components from:", commitDate)
+                    return "N/A", commitID
+                end
             else
-                warn("failed to extract date components from:", commitDate)
-                return "N/A", commitID
+                warn("failed to decode commit data")
+                return "N/A", "N/A"
             end
         else
-            warn("failed to decode commit data")
             return "N/A", "N/A"
         end
     else
-        warn("invalid repository URL")
+        warn("Invalid repository URL")
         return "N/A", "N/A"
     end
 end
