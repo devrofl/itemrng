@@ -3,7 +3,7 @@ local dataRemote = replicatedStorage:FindFirstChild("Shared"):FindFirstChild("Gi
 local text = script.Parent:FindFirstChild("Background"):FindFirstChild("yup")
 
 dataRemote.OnClientEvent:Connect(function(commitDate, commitID)
-    text.Text = "proto-"..commitDate.."(build "..commitID..")"
+    text.Text = "proto-"..commitDate.." (build "..commitID..")"
 end)
 
 dataRemote:FireServer("https://github.com/devrofl/itemrng")
